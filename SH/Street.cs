@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,77 +10,96 @@ namespace WpfApp1
 {
     internal class Street
     {
-        public Street(string nameStreet)
+        public string StreetName { get; private set; }
+        public List<House> HouseInfo { get; private set; }
+        public int Count { get; private set; }
+        public Street(string streetname)
         {
-            NameStreet = nameStreet;
-            house = null;
+            StreetName = streetname;
+            HouseInfo = new List<House>();
             Count = 0;
         }
-
-        public string NameStreet { get; private set; }
-        private House house { get; set; }
-        public int Count { get; private set; }
-
-        public void AddHouse(int Number)
+        public void AddHouse(int number)
         {
-            if (house == null)
-            {
-                this.Count++;
-                house = new House(Number, this.Count);
-            }
-            else
-            {
-                this.Count++;
-                House current = this.house;
-                while (current.NextHouse != null)
-                {
-                    current = current.NextHouse;
-                }
-                current.NextHouse = new House(Number, this.Count);
-            }
+            HouseInfo.Add(new House(number));
+            Count++;
         }
-        public void RemoveHouse(int index)
+        public void RemoveHouse(int number)
         {
-            if (index >= 0 && index <= this.Count)
+            if (HouseInfo.Count > 0)
             {
-                House current = this.house;
-                while (current.NextHouse.ID != index)
+                foreach (House house in HouseInfo)
                 {
-                    current = current.NextHouse;
-                }
-                House toDel = current.NextHouse;
-                current.NextHouse = toDel.NextHouse;
-                toDel.NextHouse = null;
-                this.Count--;
-                CheckOrderID();
-            }
-        }
-        private void CheckOrderID()
-        {
-            House current = this.house;
-            for (int i = 0; i < Count; i++)
-            {
-                if (current.ID == i + 1)
-                {
-                    current = current.NextHouse;
-                }
-                else
-                {
-                    current.ID = current.ID - 1;
-                    current = current.NextHouse;
+                    if (house.Number == number)
+                    { 
+                        HouseInfo.Remove(house);
+                        Count--;
+                    }
                 }
             }
         }
-        public int SumResidentInStreet()
+        public void AddApartment(int number, int index, int quantity)
         {
-            House current = this.house;
-            int sum = 0;
-            for (int i = 0; i < this.Count; i++)
+            if (HouseInfo.Count > 0)
             {
-                sum += current.SumResidents();
-                current = current.NextHouse;
+                foreach(House house in HouseInfo)
+                {
+                    if(house.Number == number)
+                    {
+                        house.Apartment[index] = quantity;
+                        break;
+                    }
+                }
             }
-            return sum;
+        }
+        public void RemoveApartment(int number, int index)
+        {
+            if (HouseInfo.Count > 0)
+            {
+                foreach (House house in HouseInfo)
+                {
+                    if (house.Number == number)
+                    {
+                        house.Apartment[index] = 0;
+                        break;
+                    }
+                }
+            }
+        }
+        public int SumOneApartment(int HouseNumber)
+        {
+            if (HouseInfo.Count > 0)
+            {
+                foreach (House house in HouseInfo)
+                {
+                    if (HouseNumber == house.Number)
+                    {
+                        int sum = 0;
+                        for (int i = 0; i < house.Apartment.Length; i++)
+                        {
+                            sum += house.Apartment[i] * (i +1);
+                        }
+                        return sum;
+                    }
+                }
+            }
+            return 0;
+        }
+        public int SumAllApartment()
+        {
+            if (HouseInfo.Count > 0)
+            {
+                int sum = 0;
+                foreach (House house in HouseInfo)
+                {
+                    for (int i = 0; i < house.Apartment.Length; i++)
+                    {
+                        sum += house.Apartment[i] * (i + 1);
+                    }
+                }
+                return sum;
+            }
+            return 0;
         }
     }
 }
